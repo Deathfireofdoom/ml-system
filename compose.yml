@@ -1,0 +1,81 @@
+
+services:
+  controller-service:
+    build: 
+      context: ./controller
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./filestore/data:/data
+      - ./filestore/model:/model
+      - ./filestore/output:/output
+
+    depends_on:
+      - redis
+      - postgres
+
+  controller-worker:
+    build: 
+      context: ./controller
+      dockerfile: Dockerfile
+    command: ["celery", "-A", "run", "worker", "--loglevel=info"]
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./filestore/data:/data
+      - ./filestore/model:/model
+      - ./filestore/output:/output
+    
+    depends_on:
+      - redis
+      - postgres
+
+  ml-job-service:
+    build: 
+      context: ./ml-job-service
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+    volumes:
+      - ./filestore/data:/data
+      - ./filestore/model:/model
+      - ./filestore/output:/output
+
+    depends_on:
+      - redis
+      - postgres
+  
+  ml-job-service-worker:
+    build: 
+      context: ./ml-job-service
+      dockerfile: Dockerfile
+    command: ["celery", "-A", "run", "worker", "-B", "--loglevel=info"]
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+    volumes:
+      - ./filestore/data:/data
+      - ./filestore/model:/model
+      - ./filestore/output:/output
+
+    depends_on:
+      - redis
+      - postgres
+
+  postgres:
+    image: "postgres:alpine"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"

@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS model_log CASCADE;
+DROP TABLE IF EXISTS pending_models CASCADE;
+DROP TABLE IF EXISTS run_log CASCADE;
+DROP VIEW IF EXISTS current_production_model;

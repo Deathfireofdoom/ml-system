@@ -1,0 +1,10 @@
+Flask==3.0.0
+gunicorn==21.2.0
+celery==5.3.4
+celery[redis]==5.3.4
+psycopg2-binary==2.9.8
+pandas==2.1.1
+scikit-learn==1.3.1
+dask==2023.9.3
+fastparquet==2023.8.0
+requests==2.31.0
